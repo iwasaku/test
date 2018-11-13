@@ -9,7 +9,7 @@ var ASSETS = {
     "IronMaiden_128":  "./IronMaiden_128.png",
     "sod_128":  "./sod_128.png",
     "dri_128":  "./dri_128.png",
-    "Motorhead_128":  "./Motorhead_128.png",
+    "Motorhead_128":  "./motorhead_128.png",
     "metallica_128":  "./metallica_128.png",
     "bg_gra":  "./bg_gra.png",
     "bg_sky":  "./bg_sky.png",
@@ -397,7 +397,7 @@ tm.define("GameScene", {
                         type    : "tweet",
                         text    : "PSYB_YG_01_3 スコア: "+self.resultScoreLabel.text,
                         hashtags: "細胞彼女",
-                        url     : "https://dl.dropboxusercontent.com/u/3527661/%E7%B4%B0%E8%83%9E%E9%81%8A%E6%88%AF/PSYB_YG_01_3/index.html",
+                        url     : "https://iwasaku.github.io/test/PSYB_YG_01/index.html",
                     });
                     window.open(twitterURL);
                 };

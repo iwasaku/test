@@ -5,15 +5,18 @@ var SCREEN_CENTER_Y = SCREEN_HEIGHT/2;  // スクリーン高さの半分
 var FONT_FAMILY     = "'Press Start 2P','Meiryo',sans-serif";
 var ASSETS = {
     "player":         "./resource/angus_128.png",
-    "anthrax_128":    "./resource/anthrax_128.png",
-    "IronMaiden_128": "./resource/IronMaiden_128.png",
-    "sod_128":        "./resource/sod_128.png",
-    "dri_128":        "./resource/dri_128.png",
-    "Motorhead_128":  "./resource/motorhead_128.png",
-    "metallica_128":  "./resource/metallica_128.png",
+
+    "anthrax_128":    "./resource/utena1.png",
+    "IronMaiden_128": "./resource/utena2.png",
+    "sod_128":        "./resource/utena5.png",
+    "dri_128":        "./resource/utena4.png",
+    "Motorhead_128":  "./resource/utena6.png",
+    "metallica_128":  "./resource/utena3.png",
+
     "bg_gra":         "./resource/bg_gra.png",
     "bg_sky":         "./resource/bg_sky.png",
     "bg_floor":       "./resource/bg_floor.png",
+
     "fallSE":         "./resource/fall.mp3",
 };
 
@@ -97,7 +100,7 @@ tm.define("TitleScene", {
                     fillStyle: "#fff",
                     fontSize: 64,
                     fontFamily: FONT_FAMILY,
-                    text: "PSYB_YG\n01.3",
+                    text: "U.v.U.",
                     align: "center",
                 },
                 {   
@@ -395,9 +398,9 @@ tm.define("GameScene", {
                 this.tweetButton.onclick = function() {
                     var twitterURL = tm.social.Twitter.createURL({
                         type    : "tweet",
-                        text    : "PSYB_YG_01.3 スコア: "+self.resultScoreLabel.text,
+                        text    : "U.V.U. スコア: "+self.resultScoreLabel.text,
                         hashtags: "ネムレス #NEMLESSS",
-                        url     : "https://iwasaku.github.io/test/PSYB_YG_01/index.html",
+                        url     : "https://iwasaku.github.io/test/U_V_U/index.html",
                     });
                     window.open(twitterURL);
                 };

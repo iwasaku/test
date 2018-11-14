@@ -4,17 +4,17 @@ var SCREEN_CENTER_X = SCREEN_WIDTH/2;   // スクリーン幅の半分
 var SCREEN_CENTER_Y = SCREEN_HEIGHT/2;  // スクリーン高さの半分
 var FONT_FAMILY     = "'Press Start 2P','Meiryo',sans-serif";
 var ASSETS = {
-    "player":  "./angus_128.png",
-    "anthrax_128":  "./anthrax_128.png",
-    "IronMaiden_128":  "./IronMaiden_128.png",
-    "sod_128":  "./sod_128.png",
-    "dri_128":  "./dri_128.png",
-    "Motorhead_128":  "./motorhead_128.png",
-    "metallica_128":  "./metallica_128.png",
-    "bg_gra":  "./bg_gra.png",
-    "bg_sky":  "./bg_sky.png",
-    "bg_floor":"./bg_floor.png",
-    "fallSE":  "./fall.mp3",
+    "player":         "./resource/angus_128.png",
+    "anthrax_128":    "./resource/anthrax_128.png",
+    "IronMaiden_128": "./resource/IronMaiden_128.png",
+    "sod_128":        "./resource/sod_128.png",
+    "dri_128":        "./resource/dri_128.png",
+    "Motorhead_128":  "./resource/motorhead_128.png",
+    "metallica_128":  "./resource/metallica_128.png",
+    "bg_gra":         "./resource/bg_gra.png",
+    "bg_sky":         "./resource/bg_sky.png",
+    "bg_floor":       "./resource/bg_floor.png",
+    "fallSE":         "./resource/fall.mp3",
 };
 
 var bgFloorX = 450;

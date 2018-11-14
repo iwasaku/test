@@ -396,7 +396,7 @@ tm.define("GameScene", {
                     var twitterURL = tm.social.Twitter.createURL({
                         type    : "tweet",
                         text    : "PSYB_YG_01.3 スコア: "+self.resultScoreLabel.text,
-                        hashtags: "うてなゆき",
+                        hashtags: "ネムレス #NEMLESSS",
                         url     : "https://iwasaku.github.io/test/PSYB_YG_01/index.html",
                     });
                     window.open(twitterURL);

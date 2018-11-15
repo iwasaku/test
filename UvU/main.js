@@ -398,9 +398,9 @@ tm.define("GameScene", {
                 this.tweetButton.onclick = function() {
                     var twitterURL = tm.social.Twitter.createURL({
                         type    : "tweet",
-                        text    : "U.V.U. スコア: "+self.resultScoreLabel.text,
+                        text    : "U.v.U. スコア: "+self.resultScoreLabel.text,
                         hashtags: "ネムレス #NEMLESSS",
-                        url     : "https://iwasaku.github.io/test/U_V_U/index.html",
+                        url     : "https://iwasaku.github.io/test/UvU/index.html",
                     });
                     window.open(twitterURL);
                 };

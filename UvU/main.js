@@ -24,7 +24,7 @@ var ASSETS = {
 var bgFloorX = 450;
 var bgSkyX = 450;
 var player = null;
-var bonus = 0;
+var kasuriBonus = 0;
 
 tm.main(function() {
     // アプリケーションクラスを生成
@@ -238,7 +238,7 @@ tm.define("GameScene", {
         this.ikaFrame = 0;
         this.ikaCount = 0;
 
-        bonus = 0;
+        kasuriBonus = 0;
 
         this.stopBGM = false;
     },
@@ -367,7 +367,7 @@ tm.define("GameScene", {
                     this.ikaFrame = 0;
                 }
             }
-            this.nowScoreLabel.text = Math.floor(this.score/app.fps)+bonus;
+            this.nowScoreLabel.text = Math.floor(this.score/app.fps)+kasuriBonus;
         }else{
             if(!this.stopBGM){
 	            tm.asset.AssetManager.get("fallSE").clone().play();
@@ -640,14 +640,14 @@ tm.define("Enemy", {
             var dist = Math.sqrt((dx*dx)+(dy*dy));
             switch (this.kasuri){
                 case 0:
-                    if(dist <= 110){
+                    if(dist <= 124){
                         this.kasuri = 1;
                     }
                     break;
                 case 1:
-                    if(dist > 110){
+                    if(dist > 124){
                         this.kasuri = 2;
-                        bonus += 10;
+                        kasuriBonus += 10;
                     }
                     break;
                 case 2:

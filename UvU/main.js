@@ -24,6 +24,7 @@ var ASSETS = {
 var bgFloorX = 450;
 var bgSkyX = 450;
 var player = null;
+var bonus = 0;
 
 tm.main(function() {
     // アプリケーションクラスを生成
@@ -237,6 +238,8 @@ tm.define("GameScene", {
         this.ikaFrame = 0;
         this.ikaCount = 0;
 
+        bonus = 0;
+
         this.stopBGM = false;
     },
 
@@ -364,7 +367,7 @@ tm.define("GameScene", {
                     this.ikaFrame = 0;
                 }
             }
-            this.nowScoreLabel.text = Math.floor(this.score/app.fps);
+            this.nowScoreLabel.text = Math.floor(this.score/app.fps)+bonus;
         }else{
             if(!this.stopBGM){
 	            tm.asset.AssetManager.get("fallSE").clone().play();
@@ -561,6 +564,7 @@ tm.define("Enemy", {
             this.yDir = -1;
         }
         this.counter = 0;
+        this.kasuri = 0;
     },
 
     update: function(app) {
@@ -608,8 +612,10 @@ tm.define("Enemy", {
             case 6:
                 if(this.x > SCREEN_WIDTH - 64){
                     this.vec.x = -2;
-                }else{
+                }else if(this.x > 240){
                     this.vec.x = -20;
+                }else{
+                    this.vec.x = -40;
                 }
                 this.position.add(this.vec);
                 break;
@@ -628,6 +634,25 @@ tm.define("Enemy", {
         if(this.isHitElement(player)){ // 自機と衝突している
             player.isDead = true;
             this.remove(); // 削除
+        }else{
+            var dx = this.x-player.x;
+            var dy = this.y-player.y;
+            var dist = Math.sqrt((dx*dx)+(dy*dy));
+            switch (this.kasuri){
+                case 0:
+                    if(dist <= 110){
+                        this.kasuri = 1;
+                    }
+                    break;
+                case 1:
+                    if(dist > 110){
+                        this.kasuri = 2;
+                        bonus += 10;
+                    }
+                    break;
+                case 2:
+                    break;
+            }
         }
     },
 });

@@ -6,12 +6,13 @@ var FONT_FAMILY     = "'Press Start 2P','Meiryo',sans-serif";
 var ASSETS = {
     "player":         "./resource/angus_128.png",
 
-    "anthrax_128":    "./resource/utena1.png",
-    "IronMaiden_128": "./resource/utena2.png",
-    "sod_128":        "./resource/utena5.png",
-    "dri_128":        "./resource/utena4.png",
-    "Motorhead_128":  "./resource/utena6.png",
-    "metallica_128":  "./resource/utena3.png",
+    "utena1":   "./resource/utena1.png",
+    "utena2":   "./resource/utena2.png",
+    "utena3":   "./resource/utena3.png",
+    "utena4":   "./resource/utena4.png",
+    "utena5":   "./resource/utena5.png",
+    "utena6":   "./resource/utena6.png",
+    "ika":      "./resource/ika.png",
 
     "bg_gra":         "./resource/bg_gra.png",
     "bg_sky":         "./resource/bg_sky.png",
@@ -233,6 +234,9 @@ tm.define("GameScene", {
         this.score = 0;
         this.frame = 0;
         this.enemyCount = 0;
+        this.ikaFrame = 0;
+        this.ikaCount = 0;
+
         this.stopBGM = false;
     },
 
@@ -338,6 +342,26 @@ tm.define("GameScene", {
                         this.addChild(enemy);
                     }, this);
                     this.enemyCount++;
+                }
+                if(player.y < 128){
+                    this.ikaFrame += 2;
+                }else if(player.y < 256){
+                    this.ikaFrame += 1;
+                }else if(player.y < 384){
+                    //
+                }else if(player.y < 512){
+                    if(this.ikaFrame > 0){
+                        this.ikaFrame -= 1;
+                    }
+                }
+                if(this.ikaFrame > 180){
+                    var enemy = Enemy(6);
+                    enemy.x = SCREEN_WIDTH+64;
+                    enemy.y = tm.util.Random.randint(0+64, player.y);
+                    enemy.yOfs = enemy.y;
+                    this.addChild(enemy);
+
+                    this.ikaFrame = 0;
                 }
             }
             this.nowScoreLabel.text = Math.floor(this.score/app.fps);
@@ -492,25 +516,34 @@ tm.define("Enemy", {
         this.spriteName = "";
         switch (kind){
             case 0:
-                this.spriteName = "sod_128";
+                this.spriteName = "utena5";
+                this.superInit(this.spriteName, 128, 128);
                 break;
             case 1:
-                this.spriteName = "anthrax_128";
+                this.spriteName = "utena1";
+                this.superInit(this.spriteName, 128, 128);
                 break;
             case 2:
-                this.spriteName = "IronMaiden_128";
+                this.spriteName = "utena2";
+                this.superInit(this.spriteName, 128, 128);
                 break;
             case 3:
-                this.spriteName = "dri_128";
+                this.spriteName = "utena4";
+                this.superInit(this.spriteName, 128, 128);
                 break;
             case 4:
-                this.spriteName = "Motorhead_128";
+                this.spriteName = "utena6";
+                this.superInit(this.spriteName, 128, 128);
                 break;
             case 5:
-                this.spriteName = "metallica_128";
+                this.spriteName = "utena3";
+                this.superInit(this.spriteName, 128, 128);
+                break;
+            case 6:
+                this.spriteName = "ika";
+                this.superInit(this.spriteName, 128, 64);
                 break;
         }
-        this.superInit(this.spriteName, 128, 128);
         this.direct = '';
         this.setInteractive(false);
         this.setBoundingType("circle");
@@ -571,6 +604,14 @@ tm.define("Enemy", {
                 this.position.add(this.vec);
                 this.x += (this.sinOfs/4.0+5.0)*Math.cos((this.counter+3.14/2)/50.0);
                 this.y += (this.sinOfs/4.0+5.0)*Math.sin(this.counter/50.0);
+                break;
+            case 6:
+                if(this.x > SCREEN_WIDTH - 64){
+                    this.vec.x = -2;
+                }else{
+                    this.vec.x = -20;
+                }
+                this.position.add(this.vec);
                 break;
         }
 

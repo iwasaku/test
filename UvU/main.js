@@ -257,17 +257,18 @@ tm.define("GameScene", {
     update: function(app) {
 //        app.background = "rgba(77, 136, 255, 1.0)"; // 背景色
         if(!player.isDead){
+
+            // 床スクロール
             bgFloorX -= 3;
-            if(bgFloorX < -450){
-                bgFloorX = 450;
-            }
+            if(bgFloorX < -450) bgFloorX = 450;
+
             this.bgFloor0.setPosition(bgFloorX, 900);
             this.bgFloor1.setPosition(bgFloorX+900, 900);
 
+            // 背景スクロール
             bgSkyX -= 1;
-            if(bgSkyX < -450){
-                bgSkyX = 450;
-            }
+            if(bgSkyX < -450)   bgSkyX = 450;
+
             this.bgSky0.setPosition(bgSkyX, 300);
             this.bgSky1.setPosition(bgSkyX+900, 300);
 
@@ -275,88 +276,64 @@ tm.define("GameScene", {
                 this.score++;
                 this.frame++;
                 this.tmpSec = Math.floor(this.frame/app.fps);
-                if(this.tmpSec > 170){
-                    this.frame = 0;
-                }
+                if(this.tmpSec > 170)   this.frame = 0; // 170で１周する
+
                 if(this.frame % 60 == 0){
                     this.enemyNum = -1;
                     // 敵発生数の決定
                     if(this.tmpSec < 60){
                         this.enemyNum = 1;
                     }else if(this.tmpSec < 120){
-                        this.enemyNum = 2;
-                    }else if(this.tmpSec < 2147483647){
-                        if(tm.util.Random.randint(1, 10) <= 1){
-                            this.enemyNum = 3;
-                        }else if(tm.util.Random.randint(1, 3) <= 2){
-                            this.enemyNum = 2;
-                        }else{
-                            this.enemyNum = 1;
-                        }
+                        if(tm.util.Random.randint(1, 2) <= 1)       this.enemyNum = 2;
+                        else                                        this.enemyNum = 1;
+                    }else{
+                        if(tm.util.Random.randint(1, 10) <= 1)      this.enemyNum = 3;
+                        else if(tm.util.Random.randint(1, 3) <= 2)  this.enemyNum = 2;
+                        else                                        this.enemyNum = 1;
                     }
 
                     (this.enemyNum).times(function() {
                         // 敵種別の決定
                         this.enemyKind = -1;
-                        if(this.tmpSec < 10){
-                            this.enemyKind = 0;
-                        }else if(this.tmpSec < 20){
-                            this.enemyKind = 1;
-                        }else if(this.tmpSec < 30){
-                            this.enemyKind = 2;
-                        }else if(this.tmpSec < 40){
-                            this.enemyKind = 3;
-                        }else if(this.tmpSec < 50){
-                            this.enemyKind = 4;
-                        }else if(this.tmpSec < 60){
-                            this.enemyKind = 5;
-                        }else if(this.tmpSec < 70){
-                            this.enemyKind = 0;
-                        }else if(this.tmpSec < 80){
-                            this.enemyKind = 1;
-                        }else if(this.tmpSec < 90){
-                            this.enemyKind = 2;
-                        }else if(this.tmpSec < 100){
-                            this.enemyKind = 3;
-                        }else if(this.tmpSec < 110){
-                            this.enemyKind = 4;
-                        }else if(this.tmpSec < 120){
-                            this.enemyKind = 5;
-                        }else if(this.tmpSec < 130){
-                            this.enemyKind = tm.util.Random.randint(0, 1);
-                        }else if(this.tmpSec < 140){
-                            this.enemyKind = tm.util.Random.randint(0, 2);
-                        }else if(this.tmpSec < 150){
-                            this.enemyKind = tm.util.Random.randint(0, 3);
-                        }else if(this.tmpSec < 160){
-                            this.enemyKind = tm.util.Random.randint(0, 4);
-                        }else if(this.tmpSec < 2100000000){
-                            this.enemyKind = tm.util.Random.randint(0, 5);
-                        }
+                        if(this.tmpSec < 10)        this.enemyKind = 0;
+                        else if(this.tmpSec < 20)   this.enemyKind = 1;
+                        else if(this.tmpSec < 30)   this.enemyKind = 2;
+                        else if(this.tmpSec < 40)   this.enemyKind = 3;
+                        else if(this.tmpSec < 50)   this.enemyKind = 4;
+                        else if(this.tmpSec < 60)   this.enemyKind = 5;
+                        else if(this.tmpSec < 70)   this.enemyKind = 0;
+                        else if(this.tmpSec < 80)   this.enemyKind = 1;
+                        else if(this.tmpSec < 90)   this.enemyKind = 2;
+                        else if(this.tmpSec < 100)  this.enemyKind = 3;
+                        else if(this.tmpSec < 110)  this.enemyKind = 4;
+                        else if(this.tmpSec < 120)  this.enemyKind = 5;
+                        else if(this.tmpSec < 130)  this.enemyKind = tm.util.Random.randint(0, 1);
+                        else if(this.tmpSec < 140)  this.enemyKind = tm.util.Random.randint(0, 2);
+                        else if(this.tmpSec < 150)  this.enemyKind = tm.util.Random.randint(0, 3);
+                        else if(this.tmpSec < 160)  this.enemyKind = tm.util.Random.randint(0, 4);
+                        else                        this.enemyKind = tm.util.Random.randint(0, 5);
 
                         var enemy = Enemy(this.enemyKind);
+
+                        // スタート位置
                         enemy.x = SCREEN_WIDTH+64;
-                        if(this.enemyCount%3 == 0){
-                            enemy.y = tm.util.Random.randint(0+64, player.y);
-                        }else{
-                            enemy.y = tm.util.Random.randint(0+64, SCREEN_HEIGHT-120-64);
-                        }
+                        if(this.enemyCount%3 == 0)  enemy.y = tm.util.Random.randint(0+64, player.y);
+                        else                        enemy.y = tm.util.Random.randint(0+64, SCREEN_HEIGHT-120-64);
                         enemy.yOfs = enemy.y;
+
                         this.addChild(enemy);
                     }, this);
                     this.enemyCount++;
                 }
-                if(player.y < 128){
-                    this.ikaFrame += 2;
-                }else if(player.y < 256){
-                    this.ikaFrame += 1;
-                }else if(player.y < 384){
-                    //
-                }else if(player.y < 512){
-                    if(this.ikaFrame > 0){
-                        this.ikaFrame -= 1;
-                    }
-                }
+
+                // イカ発生フレームの加減算
+                if(player.y < 128)  this.ikaFrame += 2;
+                else if(player.y < 256) this.ikaFrame += 1;
+                else if(player.y < 384) this.ikaFrame += 0;
+                else if(player.y < 512) this.ikaFrame -= 1;
+
+                if(this.ikaFrame < 0)this.ikaFrame = 0;
+
                 if(this.ikaFrame > 180){
                     var enemy = Enemy(6);
                     enemy.x = SCREEN_WIDTH+64;
@@ -598,7 +575,7 @@ tm.define("Enemy", {
                     var tmpX = (this.counter-20)/20.0;
                     var tmpY = -this.yDir*(tmpX*tmpX)+this.yDir;
                     if(this.yDir == -1) this.y = SCREEN_HEIGHT-128;
-                    else               this.y = 64;
+                    else                this.y = 64;
                     this.y += tmpY*(100+this.sinOfs*20.0);
                 }
                 break;
@@ -610,17 +587,15 @@ tm.define("Enemy", {
                 this.y += (this.sinOfs/4.0+5.0)*Math.sin(this.counter/50.0);
                 break;
             case 6:
-                if(this.x > SCREEN_WIDTH - 64){
-                    this.vec.x = -2;
-                }else if(this.x > 240){
-                    this.vec.x = -20;
-                }else{
-                    this.vec.x = -40;
-                }
+                if(this.x > SCREEN_WIDTH - 64)  this.vec.x = -2;
+                else if(this.x > 240)           this.vec.x = -20;
+                else                            this.vec.x = -40;
+                
                 this.position.add(this.vec);
                 break;
         }
 
+        // 画面上下判定
         if(this.y > SCREEN_HEIGHT-120){
             this.y = SCREEN_HEIGHT-120;
             this.yDir = 1;
@@ -628,13 +603,16 @@ tm.define("Enemy", {
             this.y = 32;
             this.yDir = -1;
         }
-        if(this.x < -64){              // 画面左端から出た?
-	        this.remove();
-        }
-        if(this.isHitElement(player)){ // 自機と衝突している
+
+        // 画面左端から出た?
+        if(this.x < -64)    this.remove();
+
+         // 自機との衝突判定
+        if(this.isHitElement(player)){
             player.isDead = true;
             this.remove(); // 削除
         }else{
+            // 自機と衝突してなければかすりボーナス判定
             var dx = this.x-player.x;
             var dy = this.y-player.y;
             var dist = Math.sqrt((dx*dx)+(dy*dy));

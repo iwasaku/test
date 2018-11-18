@@ -102,7 +102,7 @@ tm.define("TitleScene", {
                     fillStyle: "#fff",
                     fontSize: 64,
                     fontFamily: FONT_FAMILY,
-                    text: "U.v.U.",
+                    text: " U.v.U.",
                     align: "center",
                 },
                 {   

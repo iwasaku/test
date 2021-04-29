@@ -67,9 +67,9 @@ tm.define("LogoScene", {
                     x: SCREEN_CENTER_X,
                     y: 320,
                     fillStyle: "#888",
-                    fontSize: 64,
+                    fontSize: 32,
                     fontFamily: FONT_FAMILY,
-                    text: "LOGO",
+                    text: "UNOFFICIAL GAME",
                     align: "center",
                 },
             ]
@@ -79,9 +79,8 @@ tm.define("LogoScene", {
 
     update: function (app) {
         // 時間が来たらタイトルへ
-        //        if(++this.localTimer >= 5*app.fps){
+        //if (++this.localTimer >= 5 * app.fps)
         this.app.replaceScene(TitleScene());
-        //        }
     }
 });
 

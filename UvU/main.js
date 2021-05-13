@@ -403,7 +403,7 @@ tm.define("GameScene", {
                         type: "tweet",
                         text: "U.v.U. スコア: " + self.resultScoreLabel.text,
                         hashtags: "ネムレス #NEMLESSS",
-                        url: "https://iwasaku.github.io/test/UvU/index.html",
+                        url: "https://iwasaku.github.io/test/UvU/",
                     });
                     window.open(twitterURL);
                 };

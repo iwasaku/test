@@ -1,233 +1,254 @@
+phina.globalize();
+
 var SCREEN_WIDTH = 680;              // スクリーン幅
 var SCREEN_HEIGHT = 960;              // スクリーン高さ
 var SCREEN_CENTER_X = SCREEN_WIDTH / 2;   // スクリーン幅の半分
 var SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;  // スクリーン高さの半分
 var FONT_FAMILY = "'Press Start 2P','Meiryo',sans-serif";
 var ASSETS = {
-    "player": "./resource/angus_128.png",
+    image: {
+        "player": "./resource/angus_128.png",
 
-    "utena1": "./resource/utena1.png",
-    "utena2": "./resource/utena2.png",
-    "utena3": "./resource/utena3.png",
-    "utena4": "./resource/utena4.png",
-    "utena5": "./resource/utena5.png",
-    "utena6": "./resource/utena6.png",
-    "ika": "./resource/ika.png",
+        "utena1": "./resource/utena1.png",
+        "utena2": "./resource/utena2.png",
+        "utena3": "./resource/utena3.png",
+        "utena4": "./resource/utena4.png",
+        "utena5": "./resource/utena5.png",
+        "utena6": "./resource/utena6.png",
+        "ika": "./resource/ika.png",
 
-    "bg_gra": "./resource/bg_gra.png",
-    "bg_sky": "./resource/bg_sky.png",
-    "bg_floor": "./resource/bg_floor.png",
-
-    "fallSE": "./resource/fall.mp3",
+        "bg_gra": "./resource/bg_gra.png",
+        "bg_sky": "./resource/bg_sky.png",
+        "bg_floor": "./resource/bg_floor.png",
+    },
+    sound: {
+        "fallSE": "./resource/fall.mp3",
+    }
 };
 
 var bgFloorX = 450;
 var bgSkyX = 450;
 var player = null;
 var kasuriBonus = 0;
+let group0 = null;  // BG
+let group1 = null;  // Player / Enemy
+let group2 = null;  // SCORE
 
-tm.main(function () {
-    // アプリケーションクラスを生成
-    var app = tm.display.CanvasApp("#world");
-    app.resize(SCREEN_WIDTH, SCREEN_HEIGHT);    // サイズ(解像度)設定
-    app.fitWindow();                            // 自動フィッティング有効
-    app.background = "rgba(77, 136, 255, 1.0)"; // 背景色
-    app.fps = 30;                               // フレーム数
-
-    var loading = tm.ui.LoadingScene({
-        assets: ASSETS,
+phina.main(function () {
+    var app = GameApp({
+        startLabel: 'logo',
         width: SCREEN_WIDTH,
         height: SCREEN_HEIGHT,
+        assets: ASSETS,
+        // シーンのリストを引数で渡す
+        scenes: [
+            {
+                className: 'LogoScene',
+                label: 'logo',
+                nextLabel: 'title',
+            },
+
+            {
+                className: 'TitleScene',
+                label: 'title',
+                nextLabel: 'game',
+            },
+            {
+                className: 'GameScene',
+                label: 'game',
+                nextLabel: 'game',
+            },
+        ]
     });
 
-    // 読み込み完了後に呼ばれるメソッドを登録
-    loading.onload = function () {
-        app.replaceScene(LogoScene());
-    };
+    // iOSなどでユーザー操作がないと音がならない仕様対策
+    // 起動後初めて画面をタッチした時に『無音』を鳴らす
+    app.domElement.addEventListener('touchend', function dummy() {
+        var s = phina.asset.Sound();
+        s.loadFromBuffer();
+        s.play().stop();
+        app.domElement.removeEventListener('touchend', dummy);
+    });
 
-    // ローディングシーンに入れ替える
-    app.replaceScene(loading);
+    // fps表示
+    //app.enableStats();
 
     // 実行
     app.run();
 });
 
 /*
+* ローディング画面をオーバーライド
+*/
+phina.define('LoadingScene', {
+    superClass: 'DisplayScene',
+
+    init: function (options) {
+        this.superInit(options);
+        // 背景色
+        this.backgroundColor = 'black';
+        var self = this;
+        var loader = phina.asset.AssetLoader();
+
+        // 明滅するラベル
+        let label = phina.display.Label({
+            text: "",
+            fontSize: 64,
+            fill: 'white',
+        }).addChildTo(this).setPosition(SCREEN_CENTER_X, SCREEN_CENTER_Y);
+
+        // ロードが進行したときの処理
+        loader.onprogress = function (e) {
+            // 進捗具合を％で表示する
+            label.text = "{0}%".format((e.progress * 100).toFixed(0));
+        };
+
+        // ローダーによるロード完了ハンドラ
+        loader.onload = function () {
+            // Appコアにロード完了を伝える（==次のSceneへ移行）
+            self.flare('loaded');
+        };
+
+        // ロード開始
+        loader.load(options.assets);
+    },
+
+});
+
+/*
  * ロゴ
  */
-tm.define("LogoScene", {
-    superClass: "tm.app.Scene",
+phina.define("LogoScene", {
+    superClass: 'DisplayScene',
 
-    init: function () {
-        this.superInit();
-        this.fromJSON({
-            children: [
-                {
-                    type: "Label", name: "logoLabel",
-                    x: SCREEN_CENTER_X,
-                    y: 320,
-                    fillStyle: "#888",
-                    fontSize: 32,
-                    fontFamily: FONT_FAMILY,
-                    text: "UNOFFICIAL GAME",
-                    align: "center",
-                },
-            ]
-        });
+    init: function (option) {
+        this.superInit(option);
+        this.backgroundColor = 'black';
         this.localTimer = 0;
     },
 
     update: function (app) {
         // 時間が来たらタイトルへ
         //if (++this.localTimer >= 5 * app.fps)
-        this.app.replaceScene(TitleScene());
+        this.exit();
     }
 });
 
 /*
  * タイトル
  */
-tm.define("TitleScene", {
-    superClass: "tm.app.Scene",
+phina.define("TitleScene", {
+    superClass: 'DisplayScene',
 
-    init: function () {
-        this.superInit();
-        this.fromJSON({
-            children: [
-                {
-                    type: "Label", name: "titleLabel",
-                    x: SCREEN_CENTER_X,
-                    y: 320,
-                    fillStyle: "#fff",
-                    fontSize: 64,
-                    fontFamily: FONT_FAMILY,
-                    text: " U.v.U.",
-                    align: "center",
-                },
-                {
-                    type: "FlatButton", name: "startButton",
-                    init: [
-                        {
-                            text: "START",
-                            fontFamily: FONT_FAMILY,
-                            fontSize: 32,
-                            bgColor: "hsl(240, 0%, 70%)",
-                        }
-                    ],
-                    x: SCREEN_CENTER_X,
-                    y: 650,
-                },
-            ]
-        });
+    init: function (option) {
+        this.superInit(option);
+        this.backgroundColor = 'black';
+
+        titleLabel = Label({
+            text: " U.v.U.",
+            fontSize: 64,
+            fontFamily: FONT_FAMILY,
+            align: "center",
+            fill: "#fff",
+            x: SCREEN_CENTER_X,
+            y: 320,
+        }).addChildTo(this);
+
+        startButton = Button({
+            text: "START",
+            fontSize: 32,
+            fontFamily: FONT_FAMILY,
+            fill: "#444",
+            x: SCREEN_CENTER_X,
+            y: 650,
+        }).addChildTo(this)
 
         this.localTimer = 0;
 
         var self = this;
-        this.startButton.onpointingstart = function () {
-            self.app.replaceScene(GameScene());
+        startButton.onpush = function () {
+            self.exit();
         };
     },
 
     update: function (app) {
-        app.background = "rgba(0, 0, 0, 1.0)"; // 背景色
-        // 時間が来たらデモへ
-        //        if(++this.localTimer >= 5*app.fps){
-        //            this.app.replaceScene(DemoScene());
-        //        }
-    }
-});
-
-/*
- * デモ
- */
-tm.define("DemoScene", {
-    superClass: "tm.app.Scene",
-
-    init: function () {
-        this.superInit();
-        this.fromJSON({
-            children: [
-                {
-                    type: "Label", name: "demoLabel",
-                    x: SCREEN_CENTER_X,
-                    y: 320,
-                    fillStyle: "#888",
-                    fontSize: 64,
-                    fontFamily: FONT_FAMILY,
-                    text: "DEMO",
-                    align: "center",
-                },
-            ]
-        });
-        this.localTimer = 0;
-    },
-
-    update: function (app) {
-        // 時間が来たらタイトルへ
-        if (++this.localTimer >= 5 * app.fps) {
-            this.app.replaceScene(TitleScene());
-        }
-
-        // タッチしたらタイトルへ
-        var pointing = app.pointing;
-        // タッチしているかを判定
-        if (pointing.getPointing()) {
-            this.app.replaceScene(TitleScene());
-        }
     }
 });
 
 /*
  * ゲーム
  */
-tm.define("GameScene", {
-    superClass: "tm.app.Scene",
+phina.define("GameScene", {
+    superClass: 'DisplayScene',
 
-    init: function () {
-        this.superInit();
-        this.bgGradation = tm.display.Sprite("bg_gra").addChildTo(this);
+    init: function (option) {
+        this.superInit(option);
+        this.backgroundColor = 'black';
+
+        group0 = DisplayElement().addChildTo(this);
+        group1 = DisplayElement().addChildTo(this);
+        group2 = DisplayElement().addChildTo(this);
+
+        this.bgGradation = phina.display.Sprite("bg_gra").addChildTo(group0);
         this.bgGradation.setPosition(SCREEN_CENTER_X, SCREEN_CENTER_Y);
 
-        this.bgFloor0 = tm.display.Sprite("bg_floor").addChildTo(this);
+        this.bgFloor0 = phina.display.Sprite("bg_floor").addChildTo(group0);
         this.bgFloor0.setPosition(bgFloorX, 900);
-        this.bgFloor1 = tm.display.Sprite("bg_floor").addChildTo(this);
+        this.bgFloor1 = phina.display.Sprite("bg_floor").addChildTo(group0);
         this.bgFloor1.setPosition(bgFloorX + 900, 900);
 
-        this.bgSky0 = tm.display.Sprite("bg_sky").addChildTo(this);
+        this.bgSky0 = phina.display.Sprite("bg_sky").addChildTo(group0);
         this.bgSky0.setPosition(bgSkyX, 300);
-        this.bgSky1 = tm.display.Sprite("bg_sky").addChildTo(this);
+        this.bgSky1 = phina.display.Sprite("bg_sky").addChildTo(group0);
         this.bgSky1.setPosition(bgSkyX + 900, 300);
 
-        player = new Player().addChildTo(this);
+        player = new Player().addChildTo(group1);
 
-        this.fromJSON({
-            children: [
-                {
-                    type: "Label", name: "nowScoreLabel",
-                    x: SCREEN_CENTER_X,
-                    y: SCREEN_HEIGHT - 24,
-                    fillStyle: "#fff",
-                    shadowColor: "#000",
-                    shadowBlur: 10,
-                    fontSize: 32,
-                    fontFamily: FONT_FAMILY,
-                    text: "0",
-                    align: "center",
-                },
-                {
-                    type: "Label", name: "introLabel",
-                    x: SCREEN_CENTER_X,
-                    y: SCREEN_CENTER_Y + 80,
-                    fillStyle: "#fff",
-                    shadowColor: "#000",
-                    shadowBlur: 10,
-                    fontSize: 32,
-                    fontFamily: FONT_FAMILY,
-                    text: "TAP TO START",
-                    align: "center",
-                },
-            ]
-        });
+        nowScoreLabel = Label({
+            text: "0",
+            fontSize: 32,
+            fontFamily: FONT_FAMILY,
+            align: "center",
+            fill: "#fff",
+            shadowColor: "#000",
+            shadowBlur: 10,
+            x: SCREEN_CENTER_X,
+            y: SCREEN_HEIGHT - 24,
+        }).addChildTo(group2);
+
+        introLabel = Label({
+            text: "TAP TO START",
+            fontSize: 32,
+            fontFamily: FONT_FAMILY,
+            align: "center",
+            fill: "#fff",
+            shadowColor: "#000",
+            shadowBlur: 10,
+            x: SCREEN_CENTER_X,
+            y: SCREEN_CENTER_Y + 80,
+        }).addChildTo(group2);
+
+        screenButton = Button({
+            text: "",
+            fontSize: 32,
+            fontFamily: FONT_FAMILY,
+            fill: "#444",
+            x: SCREEN_CENTER_X,
+            y: SCREEN_CENTER_Y,
+            width: SCREEN_WIDTH,
+            height: SCREEN_HEIGHT,
+        }).addChildTo(group2)
+        screenButton.alpha = 0.0;
+        screenButton.onpush = function () {
+            if (player.isDead) {
+                return;
+            }
+            if (!player.isStart) {
+                introLabel.remove();
+            }
+            player.vec.y = -20;
+            player.isStart = true;
+        };
 
         this.buttonAlpha = 0.0;
 
@@ -242,19 +263,7 @@ tm.define("GameScene", {
         this.stopBGM = false;
     },
 
-    onpointingstart: function () {
-        if (player.isDead) {
-            return;
-        }
-        if (!player.isStart) {
-            this.introLabel.remove();
-        }
-        player.vec.y = -20;
-        player.isStart = true;
-    },
-
     update: function (app) {
-        //        app.background = "rgba(77, 136, 255, 1.0)"; // 背景色
         if (!player.isDead) {
 
             // 床スクロール
@@ -283,11 +292,11 @@ tm.define("GameScene", {
                     if (this.tmpSec < 60) {
                         this.enemyNum = 1;
                     } else if (this.tmpSec < 120) {
-                        if (tm.util.Random.randint(1, 2) <= 1) this.enemyNum = 2;
+                        if (phina.util.Random.randint(1, 2) <= 1) this.enemyNum = 2;
                         else this.enemyNum = 1;
                     } else {
-                        if (tm.util.Random.randint(1, 10) <= 1) this.enemyNum = 3;
-                        else if (tm.util.Random.randint(1, 3) <= 2) this.enemyNum = 2;
+                        if (phina.util.Random.randint(1, 10) <= 1) this.enemyNum = 3;
+                        else if (phina.util.Random.randint(1, 3) <= 2) this.enemyNum = 2;
                         else this.enemyNum = 1;
                     }
 
@@ -306,21 +315,19 @@ tm.define("GameScene", {
                         else if (this.tmpSec < 100) this.enemyKind = 3;
                         else if (this.tmpSec < 110) this.enemyKind = 4;
                         else if (this.tmpSec < 120) this.enemyKind = 5;
-                        else if (this.tmpSec < 130) this.enemyKind = tm.util.Random.randint(0, 1);
-                        else if (this.tmpSec < 140) this.enemyKind = tm.util.Random.randint(0, 2);
-                        else if (this.tmpSec < 150) this.enemyKind = tm.util.Random.randint(0, 3);
-                        else if (this.tmpSec < 160) this.enemyKind = tm.util.Random.randint(0, 4);
-                        else this.enemyKind = tm.util.Random.randint(0, 5);
+                        else if (this.tmpSec < 130) this.enemyKind = phina.util.Random.randint(0, 1);
+                        else if (this.tmpSec < 140) this.enemyKind = phina.util.Random.randint(0, 2);
+                        else if (this.tmpSec < 150) this.enemyKind = phina.util.Random.randint(0, 3);
+                        else if (this.tmpSec < 160) this.enemyKind = phina.util.Random.randint(0, 4);
+                        else this.enemyKind = phina.util.Random.randint(0, 5);
 
-                        var enemy = Enemy(this.enemyKind);
+                        var enemy = Enemy(this.enemyKind).addChildTo(group1);
 
                         // スタート位置
                         enemy.x = SCREEN_WIDTH + 64;
-                        if (this.enemyCount % 3 == 0) enemy.y = tm.util.Random.randint(0 + 64, player.y);
-                        else enemy.y = tm.util.Random.randint(0 + 64, SCREEN_HEIGHT - 120 - 64);
+                        if (this.enemyCount % 3 == 0) enemy.y = phina.util.Random.randint(0 + 64, player.y);
+                        else enemy.y = phina.util.Random.randint(0 + 64, SCREEN_HEIGHT - 120 - 64);
                         enemy.yOfs = enemy.y;
-
-                        this.addChild(enemy);
                     }, this);
                     this.enemyCount++;
                 }
@@ -334,97 +341,83 @@ tm.define("GameScene", {
                 if (this.ikaFrame < 0) this.ikaFrame = 0;
 
                 if (this.ikaFrame > 180) {
-                    var enemy = Enemy(6);
+                    var enemy = Enemy(6).addChildTo(group1);
                     enemy.x = SCREEN_WIDTH + 64;
-                    enemy.y = tm.util.Random.randint(0 + 64, player.y);
+                    enemy.y = phina.util.Random.randint(0 + 64, player.y);
                     enemy.yOfs = enemy.y;
-                    this.addChild(enemy);
 
                     this.ikaFrame = 0;
                 }
             }
-            this.nowScoreLabel.text = Math.floor(this.score / app.fps) + kasuriBonus;
+            nowScoreLabel.text = Math.floor(this.score / app.fps) + kasuriBonus;
         } else {
             if (!this.stopBGM) {
-                //	            tm.asset.AssetManager.get("fallSE").clone().play();
+                SoundManager.play("fallSE");
                 this.stopBGM = true;
 
-                this.fromJSON({
-                    children: [
-                        {
-                            type: "Label", name: "resultScoreLabel",
-                            x: SCREEN_CENTER_X,
-                            y: 320,
-                            fillStyle: "#fff",
-                            shadowColor: "#000",
-                            shadowBlur: 10,
-                            fontSize: 64,
-                            fontFamily: FONT_FAMILY,
-                            text: "0",
-                            align: "center",
-                        },
-                        {
-                            type: "FlatButton", name: "tweetButton",
-                            init: [
-                                {
-                                    text: "TWEET",
-                                    fontFamily: FONT_FAMILY,
-                                    fontSize: 32,
-                                    bgColor: "hsl(240, 80%, 70%)",
-                                }
-                            ],
-                            x: SCREEN_CENTER_X - 160,
-                            y: 650,
-                            alpha: 0.0,
-                        },
-                        {
-                            type: "FlatButton", name: "restartButton",
-                            init: [
-                                {
-                                    text: "RESTART",
-                                    fontFamily: FONT_FAMILY,
-                                    fontSize: 32,
-                                    bgColor: "hsl(240, 0%, 70%)",
-                                }
-                            ],
-                            x: SCREEN_CENTER_X + 160,
-                            y: 650,
-                            alpha: 0.0,
-                        },
-                    ]
-                });
-                this.tweetButton.sleep();
-                this.restartButton.sleep();
+                resultScoreLabel = Label({
+                    text: "0",
+                    fontSize: 64,
+                    fontFamily: FONT_FAMILY,
+                    align: "center",
+                    fill: "#fff",
+                    shadowColor: "#000",
+                    shadowBlur: 10,
+                    x: SCREEN_CENTER_X,
+                    y: 320,
+                }).addChildTo(group2);
 
-                var self = this;
-                // tweet ボタン
-                this.tweetButton.onclick = function () {
-                    var twitterURL = tm.social.Twitter.createURL({
+                tweetButton = Button({
+                    text: "POST",
+                    fontFamily: FONT_FAMILY,
+                    fontSize: 32,
+                    fill: "#7575EF",  // ボタン色
+                    x: SCREEN_CENTER_X - 160,
+                    y: 650,
+                    width: 240,
+                    height: 60,
+                }).addChildTo(group2);
+                tweetButton.alpha = 0.0;
+                tweetButton.onclick = function () {
+                    var twitterURL = phina.social.Twitter.createURL({
                         type: "tweet",
-                        text: "U.v.U. スコア: " + self.resultScoreLabel.text,
-                        hashtags: "ネムレス #NEMLESSS",
+                        text: "U.v.U. スコア: " + resultScoreLabel.text + "\n",
+                        hashtags: ["ネムレス", "NEMLESSS"],
                         url: "https://iwasaku.github.io/test/UvU/",
                     });
                     window.open(twitterURL);
                 };
+                tweetButton.sleep();
 
-                // back ボタン
-                this.restartButton.onpointingstart = function () {
-                    self.app.replaceScene(GameScene());
+                restartButton = Button({
+                    text: "RESTART",
+                    fontFamily: FONT_FAMILY,
+                    fontSize: 32,
+                    fill: "#B2B2B2",
+                    x: SCREEN_CENTER_X + 160,
+                    y: 650,
+                    width: 240,
+                    height: 60,
+                }).addChildTo(group2);
+                let self = this;
+                restartButton.onpush = function () {
+                    self.exit();
                 };
+                restartButton.alpha = 0.0;
+                restartButton.sleep();
 
-                this.resultScoreLabel.text = this.nowScoreLabel.text;
-                this.nowScoreLabel.remove();
+                resultScoreLabel.text = nowScoreLabel.text;
+                nowScoreLabel.remove();
             }
             this.buttonAlpha += 0.05;
             if (this.buttonAlpha > 1.0) {
                 this.buttonAlpha = 1.0;
             }
-            this.tweetButton.setAlpha(this.buttonAlpha);
-            this.restartButton.setAlpha(this.buttonAlpha);
+            tweetButton.alpha = this.buttonAlpha;
+            restartButton.alpha = this.buttonAlpha;
             if (this.buttonAlpha > 0.7) {
-                this.tweetButton.wakeUp();
-                this.restartButton.wakeUp();
+                tweetButton.wakeUp();
+                restartButton.wakeUp();
             }
         }
     }
@@ -433,13 +426,13 @@ tm.define("GameScene", {
 /*
  * Player
  */
-tm.define("Player", {
-    superClass: "tm.app.Sprite",
+phina.define("Player", {
+    superClass: "Sprite",
 
-    init: function () {
+    init: function (option) {
         this.superInit("player", 128, 128);
         this.direct = '';
-        this.vec = tm.geom.Vector2(0, 0);
+        this.vec = phina.geom.Vector2(0, 0);
         this.zRot = 0;
         this.setPosition(200, SCREEN_CENTER_Y).setScale(1, 1);
         this.setInteractive(false);
@@ -488,8 +481,8 @@ tm.define("Player", {
 /*
  * Enemey
  */
-tm.define("Enemy", {
-    superClass: "tm.app.Sprite",
+phina.define("Enemy", {
+    superClass: "Sprite",
 
     init: function (kind) {
         this.spriteName = "";
@@ -528,13 +521,13 @@ tm.define("Enemy", {
         this.setBoundingType("circle");
         this.radius = 48;
 
-        this.speedOfs = tm.util.Random.randint(4, 10);
+        this.speedOfs = phina.util.Random.randint(4, 10);
         this.sinOfs = Math.random() * 20;
         this.kind = kind;
-        this.vec = tm.geom.Vector2(0, 0);
+        this.vec = phina.geom.Vector2(0, 0);
         this.position.set(0, 0);
         this.yOfs = 0;
-        if (tm.util.Random.randint(0, 1) == 0) {
+        if (phina.util.Random.randint(0, 1) == 0) {
             this.yDir = 1;
         } else {
             this.yDir = -1;
@@ -607,7 +600,7 @@ tm.define("Enemy", {
         if (this.x < -64) this.remove();
 
         // 自機との衝突判定
-        if (this.isHitElement(player)) {
+        if (this.hitTestElement(player)) {
             player.isDead = true;
             this.remove(); // 削除
         } else {

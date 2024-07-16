@@ -39,6 +39,7 @@ phina.main(function () {
         startLabel: 'logo',
         width: SCREEN_WIDTH,
         height: SCREEN_HEIGHT,
+        fps: 30,
         assets: ASSETS,
         // シーンのリストを引数で渡す
         scenes: [
@@ -210,7 +211,7 @@ phina.define("GameScene", {
             fontFamily: FONT_FAMILY,
             align: "center",
             fill: "#fff",
-            shadowColor: "#000",
+            shadow: "#000",
             shadowBlur: 10,
             x: SCREEN_CENTER_X,
             y: SCREEN_HEIGHT - 24,
@@ -222,7 +223,7 @@ phina.define("GameScene", {
             fontFamily: FONT_FAMILY,
             align: "center",
             fill: "#fff",
-            shadowColor: "#000",
+            shadow: "#000",
             shadowBlur: 10,
             x: SCREEN_CENTER_X,
             y: SCREEN_CENTER_Y + 80,
@@ -239,7 +240,7 @@ phina.define("GameScene", {
             height: SCREEN_HEIGHT,
         }).addChildTo(group2)
         screenButton.alpha = 0.0;
-        screenButton.onpush = function () {
+        screenButton.onpointstart = function () {
             if (player.isDead) {
                 return;
             }
@@ -361,7 +362,7 @@ phina.define("GameScene", {
                     fontFamily: FONT_FAMILY,
                     align: "center",
                     fill: "#fff",
-                    shadowColor: "#000",
+                    shadow: "#000",
                     shadowBlur: 10,
                     x: SCREEN_CENTER_X,
                     y: 320,

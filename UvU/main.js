@@ -131,7 +131,11 @@ phina.define("LogoScene", {
     update: function (app) {
         // 時間が来たらタイトルへ
         //if (++this.localTimer >= 5 * app.fps)
-        this.exit();
+        // フォント読み込み待ち
+        var self = this;
+        document.fonts.load('12px "Press Start 2P"').then(function () {
+            self.exit();
+        });
     }
 });
 

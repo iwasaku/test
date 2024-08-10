@@ -39,8 +39,10 @@ phina.main(function () {
         startLabel: 'logo',
         width: SCREEN_WIDTH,
         height: SCREEN_HEIGHT,
-        fps: 30,
         assets: ASSETS,
+        fps: 30,
+        backgroundColor: 'black',
+
         // シーンのリストを引数で渡す
         scenes: [
             {
@@ -87,7 +89,6 @@ phina.define('LoadingScene', {
     init: function (options) {
         this.superInit(options);
         // 背景色
-        this.backgroundColor = 'black';
         var self = this;
         var loader = phina.asset.AssetLoader();
 
@@ -113,7 +114,6 @@ phina.define('LoadingScene', {
         // ロード開始
         loader.load(options.assets);
     },
-
 });
 
 /*
@@ -124,13 +124,10 @@ phina.define("LogoScene", {
 
     init: function (option) {
         this.superInit(option);
-        this.backgroundColor = 'black';
         this.localTimer = 0;
     },
 
     update: function (app) {
-        // 時間が来たらタイトルへ
-        //if (++this.localTimer >= 5 * app.fps)
         // フォント読み込み待ち
         var self = this;
         document.fonts.load('12px "Press Start 2P"').then(function () {
@@ -147,7 +144,6 @@ phina.define("TitleScene", {
 
     init: function (option) {
         this.superInit(option);
-        this.backgroundColor = 'black';
 
         titleLabel = Label({
             text: " U.v.U.",
@@ -188,7 +184,6 @@ phina.define("GameScene", {
 
     init: function (option) {
         this.superInit(option);
-        this.backgroundColor = 'black';
 
         group0 = DisplayElement().addChildTo(this);
         group1 = DisplayElement().addChildTo(this);

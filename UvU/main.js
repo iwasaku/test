@@ -34,6 +34,11 @@ let group0 = null;  // BG
 let group1 = null;  // Player / Enemy
 let group2 = null;  // SCORE
 
+// 共有ボタン用
+let postText = null;
+const postURL = "https://iwasaku.github.io/test/UvU/";
+const postTags = "#ネムレス #NEMLESSS";
+
 phina.main(function () {
     var app = GameApp({
         startLabel: 'logo',
@@ -412,27 +417,25 @@ phina.define("GameScene", {
                 bskyButton.alpha = 0.0;
                 bskyButton.sleep();
 
-                {
-                    var postText = "U.v.U.\nスコア: " + resultScoreLabel.text;
-                    var postURL = "https://iwasaku.github.io/test/UvU/";
-                    var postTags = "#ネムレス #NEMLESSS";
-                    xButton.onclick = function () {
-                        // https://developer.x.com/en/docs/twitter-for-websites/tweet-button/guides/web-intent
-                        var shareURL = "https://x.com/intent/tweet?text=" + encodeURIComponent(postText + "\n" + postTags + "\n") + "&url=" + encodeURIComponent(postURL);
-                        window.open(shareURL);
-                    };
-                    threadsButton.onclick = function () {
-                        // https://developers.facebook.com/docs/threads/threads-web-intents/
-                        // web intentでのハッシュタグの扱いが環境（ブラウザ、iOS、Android）によって違いすぎるので『#』を削って通常の文字列にしておく
-                        var shareURL = "https://www.threads.net/intent/post?text=" + encodeURIComponent(postText + "\n\n" + postTags.replace(/#/g, "")) + "&url=" + encodeURIComponent(postURL);
-                        window.open(shareURL);
-                    };
-                    bskyButton.onclick = function () {
-                        // https://docs.bsky.app/docs/advanced-guides/intent-links
-                        var shareURL = "https://bsky.app/intent/compose?text=" + encodeURIComponent(postText + "\n" + postTags + "\n" + postURL);
-                        window.open(shareURL);
-                    };
-                }
+                postText = "U.v.U.\nスコア: " + resultScoreLabel.text;
+                xButton.onclick = function () {
+                    // https://developer.x.com/en/docs/twitter-for-websites/tweet-button/guides/web-intent
+                    let shareURL = "https://x.com/intent/tweet?text=" + encodeURIComponent(postText + "\n" + postTags + "\n") + "&url=" + encodeURIComponent(postURL);
+                    window.open(shareURL);
+                };
+                threadsButton.onclick = function () {
+                    // https://developers.facebook.com/docs/threads/threads-web-intents/
+                    // web intentでのハッシュタグの扱いが環境（ブラウザ、iOS、Android）によって違いすぎるので『#』を削って通常の文字列にしておく
+                    let shareURL = "https://www.threads.net/intent/post?text=" + encodeURIComponent(postText + "\n\n" + postTags.replace(/#/g, "")) + "&url=" + encodeURIComponent(postURL);
+                    window.open(shareURL);
+                };
+                bskyButton.onclick = function () {
+                    // https://docs.bsky.app/docs/advanced-guides/intent-links
+                    // https://docs.bsky.app/docs/advanced-guides/post-richtext
+                    // 投稿で装飾されたテキストを処理するためにリッチ テキスト（HTML,Markdown）が使用される
+                    let shareURL = "https://bsky.app/intent/compose?text=" + encodeURIComponent((postText + "\n" + postTags + "\n" + postURL).replace(/\n/g, "<br>"));
+                    window.open(shareURL);
+                };
 
                 restartButton = Button({
                     text: "RESTART",
